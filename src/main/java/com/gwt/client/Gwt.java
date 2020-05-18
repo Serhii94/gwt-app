@@ -20,14 +20,14 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class Gwt implements EntryPoint {
 	
-	// IntroScreen widgets
+	// Intro Screen widgets
 	private VerticalPanel introScreen = new VerticalPanel();
 	private Label label = new Label("How many numbers to display?");
 	private TextBox inputField = new TextBox();
-	private Label errorMessage = new Label("The input must be a number in the range from 1 to 999");
+	private Label errorMessage = new Label("The input must be a number in the range from 1 to 1000");
 	private Button enterButton = new Button("Enter");
 	
-	// SortsScreen widgets
+	// Sorts Screen widgets
 	private HorizontalPanel sortsScreen = new HorizontalPanel();
 	private HorizontalPanel leftSide = new HorizontalPanel();
 	private VerticalPanel rightSide = new VerticalPanel();
@@ -36,6 +36,8 @@ public class Gwt implements EntryPoint {
 	
 	// -- --
 	List<Integer> randomNumbers = new ArrayList<>();
+	List<Button> numberedButtons = new ArrayList<>();
+	Timer1 timer1 = new Timer1();
 	
 	// -- --
 	private Random random = new Random();
@@ -95,12 +97,15 @@ public class Gwt implements EntryPoint {
 					public void run() {
 						int generateNumbers = Integer.valueOf(input);
 						generateRundomNumbers(generateNumbers);
-						displayNumbers(generateNumbers);
+						numberButtons();
+						
+						timer1.scheduleRepeating(20);
+						
 					}
 					
 				};
-				timer.schedule(600);
 				
+				timer.schedule(1000);
 				
 			} else {
 				errorMessage.setVisible(true);
@@ -122,6 +127,7 @@ public class Gwt implements EntryPoint {
 				return false;
 			}
 			
+			// Check whether input string is a number
 			for (int i = 0; i < input.length(); i++) {
 				if (!Character.isDigit(input.charAt(i))) {
 					return false;
@@ -145,6 +151,9 @@ public class Gwt implements EntryPoint {
 			sortsScreen.setVisible(false);
 			introScreen.setVisible(true);
 			
+			timer1.cancel();
+			
+			numberedButtons.clear();
 			randomNumbers.clear();
 			leftSide.clear();
 		}
@@ -163,7 +172,7 @@ public class Gwt implements EntryPoint {
 				}
 				
 			});
-			displayNumbers(randomNumbers.size());
+			//displayNumbers(randomNumbers.size());
 		}
 		
 	}
@@ -174,62 +183,33 @@ public class Gwt implements EntryPoint {
 		}
 	}
 	
-	private void displayNumbers(int numbersAmount) {
-		VerticalPanel vPanel = null;
-		Button button = null;
-		
-		Timer timer = new Timer() {
-			int i = 1;
+	private void numberButtons() {
+		for (int i = 0; i < randomNumbers.size(); i++) {
+			numberedButtons.add(new Button(randomNumbers.get(i).toString()));
+		}
+	}
+	
+	private class Timer1 extends Timer {
+		private int i = 0;
+		private VerticalPanel vPanel = null;
+
+		@Override
+		public void run() {
 			
-			@Override
-			public void run() {
-				if (i < 10) {
-					this.cancel();
-					Button button = new Button("hi!");
-					leftSide.add(button);
-					i++;
-				} else {
-					this.cancel();
-				}
-				
+			// Reached end of numberedButtons list
+			if (i == numberedButtons.size()) {
+				this.cancel();
 			}
 			
-		};
-		timer.scheduleRepeating(500);
-		
-//		// column size == 10 buttons
-//		for (int i = 0; i < numbersAmount; i++) {
-//			
-//			// create new column and put this column in left panel
-//			if ((i % 10) == 0) {
-//				vPanel = new VerticalPanel();
-//				leftSide.add(vPanel);
-//			}
-//			// fill column with buttons
-//			button = new Button(randomNumbers.get(i).toString());
-//			button.addStyleName("randomNumberButton");
-//			vPanel.add(button);
-					
+			// create new column
+			if ((i % 10) == 0) {
+				vPanel = new VerticalPanel();
+				leftSide.add(vPanel);
+			}
+			vPanel.add(numberedButtons.get(i));
+			i++;
 		}
-					
-//	private void displayNumbers(int numbersAmount) {
-//		VerticalPanel vPanel = null;
-//		Button button = null;
-//		
-//		// column size == 10 buttons
-//		for (int i = 0; i < numbersAmount; i++) {
-//			// create new column and put this column in left panel
-//			if ((i % 10) == 0) {
-//				vPanel = new VerticalPanel();
-//				leftSide.add(vPanel);
-//			}
-//			// fill column with buttons
-//			button = new Button(randomNumbers.get(i).toString());
-//			button.addStyleName("randomNumberButton");
-//			vPanel.add(button);
-//		}
-//	}
-	
-	
+		
+	}
 	
 }
