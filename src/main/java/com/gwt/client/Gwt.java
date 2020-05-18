@@ -38,7 +38,7 @@ public class Gwt implements EntryPoint {
 	// -- --
 	List<Integer> randomNumbers = new ArrayList<>();
 	List<Button> numberedButtons = new ArrayList<>();
-	Timer1 timer1 = new Timer1();
+	ButtonsRender render = new ButtonsRender();
 	
 	// -- --
 	private Random random = new Random();
@@ -101,7 +101,7 @@ public class Gwt implements EntryPoint {
 						generateRundomNumbers(generateNumbers);
 						numberButtons();
 						
-						timer1.scheduleRepeating(20);
+						render.scheduleRepeating(20);
 						
 					}
 					
@@ -153,7 +153,7 @@ public class Gwt implements EntryPoint {
 			sortsScreen.setVisible(false);
 			introScreen.setVisible(true);
 			
-			timer1.cancel();
+			render.cancel();
 			
 			numberedButtons.clear();
 			randomNumbers.clear();
@@ -163,58 +163,78 @@ public class Gwt implements EntryPoint {
 	}
 	
 	private class SortButtonHandler implements ClickHandler {
+		private String order = "asc";
 
 		@Override
 		public void onClick(ClickEvent event) {
-			int[] a = new int[randomNumbers.size()];
-			for (int i = 0; i < randomNumbers.size(); i++) {
-				a[i] = randomNumbers.get(i).intValue();
+			if (order.equals("asc")) {
+				order = "desc";
+				//quickSort(order);
+				leftSide.clear();
+				render.scheduleRepeating(20);
 			}
-			quickSort(a);
-			for (int i = 0; i < randomNumbers.size(); i++) {
-				randomNumbers.set(i,  Integer.valueOf(a[i]));
-			}
-			for (int i = 0; i < numberedButtons.size(); i++) {
-				numberedButtons.get(i).setText(randomNumbers.get(i).toString());
+			
+			if (order.equals("desc")) {
+				order = "asc";
+				//quickSort(order);
+				leftSide.clear();
+				render.scheduleRepeating(20);
 			}
 		}
 		
 	}
 	
-	private void quickSort(int[] a) {
-		quickSort(a, 0, a.length - 1);
-	}
-	
-	private void quickSort(int[] a, int low, int high) {
-		if (low < high + 1) {
-			int pivot = partition(a, low, high);
-			quickSort(a, low, pivot - 1);
-			quickSort(a, pivot + 1, high);
+	private void quickSort(String order) {
+		if (order.equals("ask")) {
+			//quickSort(a, 0, a.size() - 1);
+		}
+		
+		if (order.equals("desk")) {
+			
 		}
 	}
 	
-	private void swap(int[] a, int index1, int index2) {
-		int temp = a[index1];
-		a[index1] = a[index2];
-		a[index2] = temp;
-	}
-	
-	// returns random pivot index between low and high inclusive
-	private int getPivot(int low, int high) {
-		return com.google.gwt.user.client.Random.nextInt((high - low) + 1) + low;
-	}
+	private void quickSort(List<Integer> a, int low, int high) {
+		int i = low, j = high;
+        // Get the pivot element from the middle of the list
+        int pivot = a.get(low + (high-low)/2);
 
-	private int partition(int[] a, int low, int high) {
-		swap(a, low, getPivot(low, high));
-		int border = low + 1;
-		for (int i = border; i <= high; i++) {
-			if (a[i] < a[low]) {
-				swap(a, i, border++);
-			}
-		}
-		swap(a, low, border - 1);
-		return border - 1;
+        // Divide into two lists
+        while (i <= j) {
+            // If the current value from the left list is smaller than the pivot
+            // element then get the next element from the left list
+            while (a.get(i) < pivot) {
+                i++;
+            }
+            // If the current value from the right list is larger than the pivot
+            // element then get the next element from the right list
+            while (a.get(j) > pivot) {
+                j--;
+            }
+
+            // If we have found a value in the left list which is larger than
+            // the pivot element and if we have found a value in the right list
+            // which is smaller than the pivot element then we swap the
+            // values.
+            // As we are done we can increase i and j
+            if (i <= j) {
+                swap(a, i, j);
+                i++;
+                j--;
+            }
+        }
+        // Recursion
+        if (low < j)
+            quickSort(a, low, j);
+        if (i < high)
+            quickSort(a, i, high);
 	}
+	
+	private void swap(List<Integer> a, int i, int j) {
+        int temp = a.get(i);
+        a.set(i, a.get(j));
+        a.set(j, temp);
+    }
 	
 	
 	private void generateRundomNumbers(int amount) {
@@ -230,17 +250,12 @@ public class Gwt implements EntryPoint {
 	}
 	
 	// displaying numbered buttons
-	private class Timer1 extends Timer {
+	private class ButtonsRender extends Timer {
 		private int i = 0;
 		private VerticalPanel vPanel = null;
 
 		@Override
 		public void run() {
-			
-			// Reached end of numberedButtons list
-			if (i == numberedButtons.size()) {
-				this.cancel();
-			}
 			
 			// create new column
 			if ((i % 10) == 0) {
@@ -253,6 +268,13 @@ public class Gwt implements EntryPoint {
 			
 			// pick next button
 			i++;
+			
+			// Reached end of numberedButtons list
+			if (i == numberedButtons.size()) {
+				i = 0;
+				vPanel = null;
+				this.cancel();
+			}
 		}
 		
 	}
