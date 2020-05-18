@@ -50,6 +50,7 @@ public class Gwt implements EntryPoint {
 	}
 	
 	private void configIntroScreen() {
+		introScreen.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		introScreen.add(label);
 		introScreen.add(inputField);
 		introScreen.add(enterButton);
@@ -108,23 +109,29 @@ public class Gwt implements EntryPoint {
 		}
 		
 		private boolean isValidInput(String input) {
-			System.out.println();
-			System.out.println(input);
+
 			if (input.isEmpty()) {
 				return false;
-			} else if (input.length() > 4) {
-				return false;
-			} else if (input.charAt(0) == 0) {
+			} 
+			
+			if (input.length() > 4) {
 				return false;
 			}
+			
+			if (input.charAt(0) == '0') {
+				return false;
+			}
+			
 			for (int i = 0; i < input.length(); i++) {
 				if (!Character.isDigit(input.charAt(i))) {
 					return false;
 				}
 			}
+			
 			if (Integer.valueOf(input) > 1000) {
 				return false;
 			}
+			
 			return true;
 		}
 		
@@ -204,10 +211,7 @@ public class Gwt implements EntryPoint {
 //			vPanel.add(button);
 					
 		}
-				
-	
-	
-	
+					
 //	private void displayNumbers(int numbersAmount) {
 //		VerticalPanel vPanel = null;
 //		Button button = null;
