@@ -1,11 +1,22 @@
 /** Add css rules here for your application. */
 .introScreen {
-	margin: 15% auto;
+	width: 95%;
+	margin: 0 auto;
 	
 }
 
+.contentWrapper  {
+	margin: 3% auto;
+}
+
+.screenTitle {
+	font-weight: bold;
+	font-size: xx-large;
+}
+
 .sortsScreen {
-	margin: 15% auto;
+	width: 95%;
+	margin: 0 auto;
 }
 
 .randomNumberButton {

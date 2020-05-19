@@ -8,26 +8,28 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 public class Gwt implements EntryPoint {
 
 	// Intro Screen widgets
-	private VerticalPanel introScreen = new VerticalPanel();
+	VerticalPanel introScreen = new VerticalPanel();
+	private VerticalPanel contentWrapper1 = new VerticalPanel();
+	private Label introScreenTitle = new Label("Intro screen");
 	private Label label = new Label("How many numbers to display?");
 	private TextBox inputField = new TextBox();
 	private Label errorMessage = new Label("The input must be a number in the range from 1 to 1000");
 	private Button enterButton = new Button("Enter");
 
 	// Sorts Screen widgets
-	private HorizontalPanel sortsScreen = new HorizontalPanel();
+	private VerticalPanel sortsScreen = new VerticalPanel();
+	private HorizontalPanel contentWrapper2 = new HorizontalPanel();
+	private Label sortsScreenTitle = new Label("Sorts screen");
 	private HorizontalPanel leftSide = new HorizontalPanel();
 	private VerticalPanel rightSide = new VerticalPanel();
 	private Button sortButton = new Button("Sort");
@@ -59,22 +61,38 @@ public class Gwt implements EntryPoint {
 	}
 
 	private void configIntroScreen() {
-		introScreen.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		introScreen.add(label);
-		introScreen.add(inputField);
-		introScreen.add(enterButton);
-		introScreen.add(errorMessage);
+		introScreen.setStyleName("introScreen");
+		introScreen.add(introScreenTitle);
+		introScreen.add(contentWrapper1);
+		
+		introScreenTitle.setStyleName("screenTitle");
+		
+		contentWrapper1.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		contentWrapper1.setSpacing(10);
+		contentWrapper1.add(label);
+		contentWrapper1.add(inputField);
+		contentWrapper1.add(enterButton);
+		contentWrapper1.add(errorMessage);
+		contentWrapper1.setStyleName("contentWrapper");
+		
 		errorMessage.setVisible(false);
 		enterButton.addClickHandler(new EnterButtonHandler());
 
-		introScreen.addStyleName("introScreen");
 	}
 
 	private void configSortsScreen() {
+		
 		sortsScreen.addStyleName("sortsScreen");
+		sortsScreen.add(sortsScreenTitle);
+		sortsScreen.add(contentWrapper2);
+		
+		sortsScreenTitle.setStyleName("screenTitle");
+		
+		contentWrapper2.setStyleName("contentWrapper");
+		contentWrapper2.add(leftSide);
+		contentWrapper2.add(rightSide);
+		
 		sortsScreen.setVisible(false);
-		sortsScreen.add(leftSide);
-		sortsScreen.add(rightSide);
 		
 
 		leftSide.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -156,10 +174,7 @@ public class Gwt implements EntryPoint {
 			sortsScreen.setVisible(false);
 			introScreen.setVisible(true);
 
-			for (int i = 0; i < timersList.size(); i++) {
-				timersList.get(i).cancel();
-			}
-			timersList.clear();
+			resetTimers();
 			inputField.setText("");
 
 			numberedButtons.clear();
@@ -211,11 +226,33 @@ public class Gwt implements EntryPoint {
 		public void onClick(ClickEvent event) {
 			
 			Button theButton = (Button) event.getSource();
-			theButton.getText();
+			int buttonValue = Integer.parseInt(theButton.getText());
+			if ((buttonValue != 0) && (buttonValue <= 30)) {
+				// Clean all values in lists
+				numberedButtons.clear();
+				randomNumbers.clear();
+				randomNumbersCopy.clear();
+				leftSide.clear();
+				
+				resetTimers();
+				
+				// Generate new values
+				generateRandomNumbers(buttonValue);
+				render.scheduleRepeating(BUTTONS_DISPLAY_INTERVAL);
+				timersList.add(render);
+				
+			}
 //			dialogBox.setVisible(true);
 			
 		}
 		
+	}
+	
+	private void resetTimers() {
+		for (int i = 0; i < timersList.size(); i++) {
+			timersList.get(i).cancel();
+		}
+		timersList.clear();
 	}
 
 	private void quickSort(String order) {
