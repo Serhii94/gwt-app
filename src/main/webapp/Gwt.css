@@ -7,6 +7,7 @@
 
 .contentWrapper  {
 	margin: 3% auto;
+	height: auto;
 }
 
 .screenTitle {
@@ -19,43 +20,31 @@
 	margin: 0 auto;
 }
 
+.randomNumbersButtonPanel {
+	margin-right: 40px;
+}
+
+.column {
+	margin-right: 10px;
+}
+
 .randomNumberButton {
 	display: block;
 	border: 0;
 	width: 50px;
 	border-radius: 0;
-	background-color: blue;
+	margin-bottom: 10px;
 }
 
-
-/** Example rules used by the template application (remove for your app) */
-h1 {
-  font-size: 2em;
-  font-weight: bold;
-  color: #777777;
-  margin: 40px 0px 70px;
-  text-align: center;
+.sortButton {
+	display: block;
+	width: 100px;
+	height: 30px;
+	margin-bottom: 10px;
 }
 
-.sendButton {
-  display: block;
-  font-size: 16pt;
-}
-
-/** Most GWT widgets already have a style name defined */
-.gwt-DialogBox {
-  width: 400px;
-}
-
-.dialogVPanel {
-  margin: 5px;
-}
-
-.serverResponseLabelError {
-  color: red;
-}
-
-/** Set ids using widget.getElement().setId("idOfElement") */
-#closeButton {
-  margin: 15px 6px 6px;
+.resetButton {
+	display: block;
+	width: 100px;
+	height: 30px;
 }

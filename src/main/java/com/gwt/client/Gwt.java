@@ -96,14 +96,19 @@ public class Gwt implements EntryPoint {
 		
 
 		leftSide.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		leftSide.setStyleName("randomNumbersButtonPanel");
+		//leftSide.setSpacing(10);
 		// leftSide.setWidth("700px");
+		
 
-		rightSide.setWidth("50px");
 		rightSide.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		rightSide.add(sortButton);
 		sortButton.addClickHandler(new SortButtonHandler());
 		rightSide.add(resetButton);
 		resetButton.addClickHandler(new ResetButtonHandler());
+		
+		sortButton.setStyleName("sortButton");
+		resetButton.addStyleName("resetButton");
 		
 //		dialogBox.setTitle("Caution");
 //		dialogBox.add(cautionMessage);
@@ -201,7 +206,9 @@ public class Gwt implements EntryPoint {
 			}
 			numberedButtons.clear();
 			for (int i = 0; i < randomNumbersCopy.size(); i++) {
-				numberedButtons.add(new Button(randomNumbers.get(i).toString()));
+				Button button = new Button(randomNumbers.get(i).toString());
+				button.setStyleName("randomNumberButton");
+				numberedButtons.add(button);
 			}
 			render.scheduleRepeating(BUTTONS_DISPLAY_INTERVAL);
 
@@ -393,6 +400,7 @@ public class Gwt implements EntryPoint {
 			randomNumbers.add(randomNumber);
 			randomNumbersCopy.add(randomNumber);
 			Button button = new Button(Integer.toString(randomNumber));
+			button.setStyleName("randomNumberButton");
 			button.addClickHandler(new RundomButtonHandler());
 			numberedButtons.add(button);
 		}
@@ -409,6 +417,7 @@ public class Gwt implements EntryPoint {
 			// create new column
 			if ((i % 10) == 0) {
 				vPanel = new VerticalPanel();
+				vPanel.setStyleName("column");
 				leftSide.add(vPanel);
 			}
 
