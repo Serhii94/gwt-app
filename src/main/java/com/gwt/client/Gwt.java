@@ -40,6 +40,8 @@ public class Gwt implements EntryPoint {
 	List<Button> numberedButtons = new ArrayList<>();
 	ButtonsRender render = new ButtonsRender();
 	
+	private static final int BUTTONS_DISPLAY_INTERVAL = 20;
+	
 	// -- --
 	private Random random = new Random();
 	
@@ -101,13 +103,13 @@ public class Gwt implements EntryPoint {
 						generateRundomNumbers(generateNumbers);
 						numberButtons();
 						
-						render.scheduleRepeating(20);
+						render.scheduleRepeating(BUTTONS_DISPLAY_INTERVAL);
 						
 					}
 					
 				};
 				
-				timer.schedule(1000);
+				timer.schedule(800);
 				
 			} else {
 				errorMessage.setVisible(true);
@@ -169,71 +171,109 @@ public class Gwt implements EntryPoint {
 		public void onClick(ClickEvent event) {
 			if (order.equals("asc")) {
 				order = "desc";
-				//quickSort(order);
-				leftSide.clear();
-				render.scheduleRepeating(20);
 			}
 			
 			if (order.equals("desc")) {
 				order = "asc";
-				//quickSort(order);
-				leftSide.clear();
-				render.scheduleRepeating(20);
 			}
+			leftSide.clear();
+			render.scheduleRepeating(BUTTONS_DISPLAY_INTERVAL);
+			
+			Timer timer = new Timer() {
+
+				@Override
+				public void run() {
+					quickSort(order);
+				}
+				
+			};
+			timer.schedule(BUTTONS_DISPLAY_INTERVAL * randomNumbers.size() + 20);
 		}
 		
 	}
 	
 	private void quickSort(String order) {
-		if (order.equals("ask")) {
-			//quickSort(a, 0, a.size() - 1);
+//		if (order.equals("ask")) {
+//			//quickSort(a, 0, a.size() - 1);
+//		}
+//		
+//		if (order.equals("desk")) {
+//			
+//		}
+		
+		quickSort(0, randomNumbers.size() - 1);
+	}
+	
+	private void quickSort(int low, int high) {
+		QuickSortTimer qst = new QuickSortTimer(low, high);
+		qst.schedule(300);
+	}
+	
+	private class QuickSortTimer extends Timer {
+		private int low;
+		private int high;
+		
+		public QuickSortTimer(int low, int high) {
+			this.low = low;
+			this.high = high;
 		}
 		
-		if (order.equals("desk")) {
+		@Override
+		public void run() {
+			int i = low, j = high;
+	        // Get the pivot element from the middle of the list
+	        int pivot = randomNumbers.get(low + (high-low)/2);
+
+	        // Divide into two lists
+	        while (i <= j) {
+	            // If the current value from the left list is smaller than the pivot
+	            // element then get the next element from the left list
+	            while (randomNumbers.get(i) < pivot) {
+	                i++;
+	            }
+	            // If the current value from the right list is larger than the pivot
+	            // element then get the next element from the right list
+	            while (randomNumbers.get(j) > pivot) {
+	                j--;
+	            }
+
+	            // If we have found a value in the left list which is larger than
+	            // the pivot element and if we have found a value in the right list
+	            // which is smaller than the pivot element then we swap the
+	            // values.
+	            // As we are done we can increase i and j
+	            if (i <= j) {
+	                swap(i, j);
+	                swapB(i, j);
+	                i++;
+	                j--;
+	            }
+	        }
+	        // Recursion
+	        if (low < j) {
+	        	QuickSortTimer qst1 = new QuickSortTimer(low, j);
+	        	qst1.schedule(1000);
+	        }
+	        
+	        if (i < high) {
+	        	QuickSortTimer qst2 = new QuickSortTimer(i, high);
+	        	qst2.schedule(1000);
+	        }
 			
 		}
+		
 	}
 	
-	private void quickSort(List<Integer> a, int low, int high) {
-		int i = low, j = high;
-        // Get the pivot element from the middle of the list
-        int pivot = a.get(low + (high-low)/2);
-
-        // Divide into two lists
-        while (i <= j) {
-            // If the current value from the left list is smaller than the pivot
-            // element then get the next element from the left list
-            while (a.get(i) < pivot) {
-                i++;
-            }
-            // If the current value from the right list is larger than the pivot
-            // element then get the next element from the right list
-            while (a.get(j) > pivot) {
-                j--;
-            }
-
-            // If we have found a value in the left list which is larger than
-            // the pivot element and if we have found a value in the right list
-            // which is smaller than the pivot element then we swap the
-            // values.
-            // As we are done we can increase i and j
-            if (i <= j) {
-                swap(a, i, j);
-                i++;
-                j--;
-            }
-        }
-        // Recursion
-        if (low < j)
-            quickSort(a, low, j);
-        if (i < high)
-            quickSort(a, i, high);
-	}
+	private void swap(int i, int j) {
+        int temp = randomNumbers.get(i);
+        randomNumbers.set(i, randomNumbers.get(j));
+        randomNumbers.set(j, temp);
+    }
 	
-	private void swap(List<Integer> a, int i, int j) {
-        int temp = a.get(i);
-        a.set(i, a.get(j));
-        a.set(j, temp);
+	private void swapB(int i, int j) {
+        String temp = numberedButtons.get(i).getText();
+        numberedButtons.get(i).setText(numberedButtons.get(j).getText());
+        numberedButtons.get(j).setText(temp);
     }
 	
 	
