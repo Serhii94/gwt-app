@@ -32,7 +32,11 @@ public class Gwt implements EntryPoint {
 	private VerticalPanel rightSide = new VerticalPanel();
 	private Button sortButton = new Button("Sort");
 	private Button resetButton = new Button("Reset");
+	
+	// Pop up message box
 	private DialogBox dialogBox = new DialogBox();
+	private Label cautionMessage  = new Label("Please select a value smaller or equal 30.");
+	private Button okButton = new Button("Ok");
 
 	// -- --
 	private List<Integer> randomNumbers = new ArrayList<>();
@@ -51,7 +55,6 @@ public class Gwt implements EntryPoint {
 
 		RootPanel.get().add(introScreen);
 		RootPanel.get().add(sortsScreen);
-		RootPanel.get().add(dialogBox);
 
 	}
 
@@ -72,6 +75,7 @@ public class Gwt implements EntryPoint {
 		sortsScreen.setVisible(false);
 		sortsScreen.add(leftSide);
 		sortsScreen.add(rightSide);
+		sortsScreen.add(dialogBox);
 
 		leftSide.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		// leftSide.setWidth("700px");
@@ -83,8 +87,9 @@ public class Gwt implements EntryPoint {
 		rightSide.add(resetButton);
 		resetButton.addClickHandler(new ResetButtonHandler());
 		
-		Label label = new Label("Please select a value smaller or equal 30.");
-		dialogBox.add(label);
+//		dialogBox.setTitle("Caution");
+		dialogBox.add(cautionMessage);
+		dialogBox.add(okButton);
 		dialogBox.setVisible(false);
 
 	}
