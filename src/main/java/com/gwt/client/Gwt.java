@@ -407,19 +407,6 @@ public class Gwt implements EntryPoint {
 		numberedButtons.get(i).setText(numberedButtons.get(j).getText());
 		numberedButtons.get(j).setText(temp);
 	}
-
-//	private void generateRandomNumbers(int amount) {
-//		int randomNumber;
-//		for (int i = 0; i < amount; i++) {
-//			randomNumber = com.google.gwt.user.client.Random.nextInt(1000);
-//			randomNumbers.add(randomNumber);
-//			randomNumbersCopy.add(randomNumber);
-//			Button button = new Button(Integer.toString(randomNumber));
-//			button.setStyleName("randomNumberButton");
-//			button.addClickHandler(new RandomButtonHandler());
-//			numberedButtons.add(button);
-//		}
-//	}
 	
 	private void generateRandomNumbers(int amount) {
 		for (int i = 0; i < amount; i++) {
