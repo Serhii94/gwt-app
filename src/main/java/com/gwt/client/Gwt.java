@@ -130,6 +130,13 @@ public class Gwt implements EntryPoint {
 				
 				int randomNumbersAmount = Integer.valueOf(input);
 				generateRandomNumbers(randomNumbersAmount);
+				randomNumbersCopy.addAll(randomNumbers);
+				for (int i = 0; i < randomNumbersCopy.size(); i++) {
+					Button button = new Button(Integer.toString(randomNumbersCopy.get(i)));
+					button.setStyleName("randomNumberButton");
+					button.addClickHandler(new RandomButtonHandler());
+					numberedButtons.add(button);
+				}
 
 				Timer timer = new Timer() {
 
@@ -227,7 +234,7 @@ public class Gwt implements EntryPoint {
 
 	}
 	
-	private class RundomButtonHandler implements ClickHandler {
+	private class RandomButtonHandler implements ClickHandler {
 
 		@Override
 		public void onClick(ClickEvent event) {
@@ -245,6 +252,14 @@ public class Gwt implements EntryPoint {
 				
 				// Generate new values
 				generateRandomNumbers(buttonValue);
+				randomNumbersCopy.addAll(randomNumbers);
+				for (int i = 0; i < randomNumbersCopy.size(); i++) {
+					Button button = new Button(Integer.toString(randomNumbersCopy.get(i)));
+					button.setStyleName("randomNumberButton");
+					button.addClickHandler(new RandomButtonHandler());
+					numberedButtons.add(button);
+				}
+				
 				render.scheduleRepeating(BUTTONS_DISPLAY_INTERVAL);
 				timersList.add(render);
 				
@@ -393,17 +408,35 @@ public class Gwt implements EntryPoint {
 		numberedButtons.get(j).setText(temp);
 	}
 
+//	private void generateRandomNumbers(int amount) {
+//		int randomNumber;
+//		for (int i = 0; i < amount; i++) {
+//			randomNumber = com.google.gwt.user.client.Random.nextInt(1000);
+//			randomNumbers.add(randomNumber);
+//			randomNumbersCopy.add(randomNumber);
+//			Button button = new Button(Integer.toString(randomNumber));
+//			button.setStyleName("randomNumberButton");
+//			button.addClickHandler(new RandomButtonHandler());
+//			numberedButtons.add(button);
+//		}
+//	}
+	
 	private void generateRandomNumbers(int amount) {
-		int randomNumber;
 		for (int i = 0; i < amount; i++) {
-			randomNumber = com.google.gwt.user.client.Random.nextInt(1000);
-			randomNumbers.add(randomNumber);
-			randomNumbersCopy.add(randomNumber);
-			Button button = new Button(Integer.toString(randomNumber));
-			button.setStyleName("randomNumberButton");
-			button.addClickHandler(new RundomButtonHandler());
-			numberedButtons.add(button);
+			randomNumbers.add(com.google.gwt.user.client.Random.nextInt(1000));
 		}
+		
+		// Check whether there is at list one number <= 30 in the list
+		for (int i = 0; i < amount; i++) {
+			if (randomNumbers.get(i) <= 30) {
+				return;
+			}
+			// In case there isn't such number in list - generate and set it
+			int randomNumber = com.google.gwt.user.client.Random.nextInt(30);
+			int position = com.google.gwt.user.client.Random.nextInt(amount);
+			randomNumbers.set(position, randomNumber);
+		}
+		
 	}
 
 	// displaying numbered buttons
