@@ -8,12 +8,14 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class Gwt implements EntryPoint {
 
@@ -30,6 +32,7 @@ public class Gwt implements EntryPoint {
 	private VerticalPanel rightSide = new VerticalPanel();
 	private Button sortButton = new Button("Sort");
 	private Button resetButton = new Button("Reset");
+	private DialogBox dialogBox = new DialogBox();
 
 	// -- --
 	private List<Integer> randomNumbers = new ArrayList<>();
@@ -48,6 +51,7 @@ public class Gwt implements EntryPoint {
 
 		RootPanel.get().add(introScreen);
 		RootPanel.get().add(sortsScreen);
+		RootPanel.get().add(dialogBox);
 
 	}
 
@@ -78,6 +82,10 @@ public class Gwt implements EntryPoint {
 		sortButton.addClickHandler(new SortButtonHandler());
 		rightSide.add(resetButton);
 		resetButton.addClickHandler(new ResetButtonHandler());
+		
+		Label label = new Label("Please select a value smaller or equal 30.");
+		dialogBox.add(label);
+		dialogBox.setVisible(false);
 
 	}
 
@@ -189,6 +197,19 @@ public class Gwt implements EntryPoint {
 			timer.schedule(BUTTONS_DISPLAY_INTERVAL * randomNumbers.size() + 20);
 		}
 
+	}
+	
+	private class RundomButtonHandler implements ClickHandler {
+
+		@Override
+		public void onClick(ClickEvent event) {
+			
+			Button theButton = (Button) event.getSource();
+			theButton.getText();
+			dialogBox.setVisible(true);
+			
+		}
+		
 	}
 
 	private void quickSort(String order) {
@@ -328,7 +349,9 @@ public class Gwt implements EntryPoint {
 			randomNumber = com.google.gwt.user.client.Random.nextInt(1000);
 			randomNumbers.add(randomNumber);
 			randomNumbersCopy.add(randomNumber);
-			numberedButtons.add(new Button(Integer.toString(randomNumber)));
+			Button button = new Button(Integer.toString(randomNumber));
+			button.addClickHandler(new RundomButtonHandler());
+			numberedButtons.add(button);
 		}
 	}
 
