@@ -31,8 +31,8 @@ public class Gwt implements EntryPoint {
 	private VerticalPanel sortsScreen = new VerticalPanel();
 	private HorizontalPanel contentWrapper = new HorizontalPanel();
 	private Label sortsScreenTitle = new Label("Sorts screen");
-	private HorizontalPanel leftSide = new HorizontalPanel();
-	private VerticalPanel rightSide = new VerticalPanel();
+	private HorizontalPanel randomButtonsArea = new HorizontalPanel();
+	private VerticalPanel controlButtonsArea = new VerticalPanel();
 	private Button sortButton = new Button("Sort");
 	private Button resetButton = new Button("Reset");
 
@@ -86,18 +86,18 @@ public class Gwt implements EntryPoint {
 		sortsScreenTitle.setStyleName("screenTitle");
 
 		contentWrapper.setStyleName("contentWrapper");
-		contentWrapper.add(leftSide);
-		contentWrapper.add(rightSide);
+		contentWrapper.add(randomButtonsArea);
+		contentWrapper.add(controlButtonsArea);
 
 		sortsScreen.setVisible(false);
 
-		leftSide.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		leftSide.setStyleName("randomNumbersButtonPanel");
+		randomButtonsArea.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		randomButtonsArea.setStyleName("randomNumbersButtonPanel");
 
-		rightSide.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-		rightSide.add(sortButton);
+		controlButtonsArea.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		controlButtonsArea.add(sortButton);
 		sortButton.addClickHandler(new SortButtonHandler());
-		rightSide.add(resetButton);
+		controlButtonsArea.add(resetButton);
 		resetButton.addClickHandler(new ResetButtonHandler());
 
 		sortButton.setStyleName("sortButton");
@@ -394,7 +394,7 @@ public class Gwt implements EntryPoint {
 			if ((i % 10) == 0) {
 				vPanel = new VerticalPanel();
 				vPanel.setStyleName("column");
-				leftSide.add(vPanel);
+				randomButtonsArea.add(vPanel);
 			}
 			// put button in column
 			vPanel.add(numberedButtons.get(i));
@@ -421,7 +421,7 @@ public class Gwt implements EntryPoint {
 		resetTimers();
 		randomNumbersCopy.clear();
 		numberedButtons.clear();
-		leftSide.clear();
+		randomButtonsArea.clear();
 	}
 
 	private void resetTimers() {
