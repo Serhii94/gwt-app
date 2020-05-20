@@ -8,6 +8,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DecoratedPopupPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -18,7 +19,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class Gwt implements EntryPoint {
 
 	// Intro Screen widgets
-	VerticalPanel introScreen = new VerticalPanel();
+	private VerticalPanel introScreen = new VerticalPanel();
 	private VerticalPanel contentWrapper1 = new VerticalPanel();
 	private Label introScreenTitle = new Label("Intro screen");
 	private Label label = new Label("How many numbers to display?");
@@ -34,27 +35,26 @@ public class Gwt implements EntryPoint {
 	private VerticalPanel rightSide = new VerticalPanel();
 	private Button sortButton = new Button("Sort");
 	private Button resetButton = new Button("Reset");
-	
+
 	// Pop up message box
-//	private DialogBox dialogBox = new DialogBox();
-//	private Label cautionMessage  = new Label("Please select a value smaller or equal 30.");
-//	private Button okButton = new Button("Ok");
+	private DecoratedPopupPanel popUp = new DecoratedPopupPanel();
+	private Label restrictMessage = new Label("Please select a value smaller or equal 30.");
 
 	// -- --
 	private List<Integer> randomNumbers = new ArrayList<>();
 	private List<Integer> randomNumbersCopy = new ArrayList<>();
 	private List<Button> numberedButtons = new ArrayList<>();
-	
+
 	ButtonsRender render = new ButtonsRender();
 
 	private static final int BUTTONS_DISPLAY_INTERVAL = 20;
-	
+	private static final int SORTING_ITERATION_DELAY = 300;
+
 	List<Timer> timersList = new ArrayList<>();
 
 	public void onModuleLoad() {
 		configIntroScreen();
 		configSortsScreen();
-
 		RootPanel.get().add(introScreen);
 		RootPanel.get().add(sortsScreen);
 
@@ -64,9 +64,9 @@ public class Gwt implements EntryPoint {
 		introScreen.setStyleName("introScreen");
 		introScreen.add(introScreenTitle);
 		introScreen.add(contentWrapper1);
-		
+
 		introScreenTitle.setStyleName("screenTitle");
-		
+
 		contentWrapper1.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		contentWrapper1.setSpacing(10);
 		contentWrapper1.add(label);
@@ -74,47 +74,39 @@ public class Gwt implements EntryPoint {
 		contentWrapper1.add(enterButton);
 		contentWrapper1.add(errorMessage);
 		contentWrapper1.setStyleName("contentWrapper");
-		
+
 		errorMessage.setVisible(false);
 		enterButton.addClickHandler(new EnterButtonHandler());
 
 	}
 
 	private void configSortsScreen() {
-		
+
 		sortsScreen.addStyleName("sortsScreen");
 		sortsScreen.add(sortsScreenTitle);
 		sortsScreen.add(contentWrapper2);
-		
+
 		sortsScreenTitle.setStyleName("screenTitle");
-		
+
 		contentWrapper2.setStyleName("contentWrapper");
 		contentWrapper2.add(leftSide);
 		contentWrapper2.add(rightSide);
-		
+
 		sortsScreen.setVisible(false);
-		
 
 		leftSide.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		leftSide.setStyleName("randomNumbersButtonPanel");
-		//leftSide.setSpacing(10);
-		// leftSide.setWidth("700px");
-		
 
 		rightSide.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		rightSide.add(sortButton);
 		sortButton.addClickHandler(new SortButtonHandler());
 		rightSide.add(resetButton);
 		resetButton.addClickHandler(new ResetButtonHandler());
-		
+
 		sortButton.setStyleName("sortButton");
 		resetButton.addStyleName("resetButton");
-		
-//		dialogBox.setTitle("Caution");
-//		dialogBox.add(cautionMessage);
-//		dialogBox.add(okButton);
-//		dialogBox.setVisible(false);
-//		sortsScreen.add(dialogBox);
+
+		popUp.add(restrictMessage);
 
 	}
 
@@ -127,29 +119,21 @@ public class Gwt implements EntryPoint {
 				introScreen.setVisible(false);
 				sortsScreen.setVisible(true);
 				errorMessage.setVisible(false);
-				
+
 				int randomNumbersAmount = Integer.valueOf(input);
-				generateRandomNumbers(randomNumbersAmount);
+				generateRandomNumbers(randomNumbersAmount);                        /* 2 */
 				randomNumbersCopy.addAll(randomNumbers);
-				for (int i = 0; i < randomNumbersCopy.size(); i++) {
-					Button button = new Button(Integer.toString(randomNumbersCopy.get(i)));
-					button.setStyleName("randomNumberButton");
-					button.addClickHandler(new RandomButtonHandler());
-					numberedButtons.add(button);
-				}
+				numerateButtons();
 
 				Timer timer = new Timer() {
 
 					@Override
 					public void run() {
-						render.scheduleRepeating(BUTTONS_DISPLAY_INTERVAL);
+						registerAndSchedule(render, BUTTONS_DISPLAY_INTERVAL, true);
 					}
 
 				};
-				timersList.add(timer);
-				timersList.add(render);
-
-				timer.schedule(800);
+				registerAndSchedule(timer, 800, false);
 
 			} else {
 				errorMessage.setVisible(true);
@@ -186,13 +170,14 @@ public class Gwt implements EntryPoint {
 			sortsScreen.setVisible(false);
 			introScreen.setVisible(true);
 
-			resetTimers();
 			inputField.setText("");
 
+			resetTimers();
 			numberedButtons.clear();
-			randomNumbers.clear();
+			randomNumbers.clear();                                          /* 1 */
 			randomNumbersCopy.clear();
 			leftSide.clear();
+			popUp.hide();
 		}
 
 	}
@@ -202,22 +187,17 @@ public class Gwt implements EntryPoint {
 
 		@Override
 		public void onClick(ClickEvent event) {
+			popUp.hide();
 			randomNumbersCopy.clear();
-			leftSide.clear();
-			randomNumbersCopy.addAll(randomNumbers);
-			
+			leftSide.clear();                                               /* 1 */
+			numberedButtons.clear();
+			resetTimers();
+
 			if (order.equals("asc")) {
 				order = "desc";
 			} else if (order.equals("desc")) {
 				order = "asc";
 			}
-			numberedButtons.clear();
-			for (int i = 0; i < randomNumbersCopy.size(); i++) {
-				Button button = new Button(randomNumbers.get(i).toString());
-				button.setStyleName("randomNumberButton");
-				numberedButtons.add(button);
-			}
-			render.scheduleRepeating(BUTTONS_DISPLAY_INTERVAL);
 
 			Timer timer = new Timer() {
 
@@ -227,49 +207,66 @@ public class Gwt implements EntryPoint {
 				}
 
 			};
-			
-			timersList.add(timer);
-			timer.schedule(BUTTONS_DISPLAY_INTERVAL * randomNumbers.size() + 20);
+
+			randomNumbersCopy.addAll(randomNumbers);                                         /* 2 */
+			numerateButtons();
+
+			registerAndSchedule(render, BUTTONS_DISPLAY_INTERVAL, true);
+			/* timersList.add(render) - хз нада ця строка її тут не було */
+
+			registerAndSchedule(timer, BUTTONS_DISPLAY_INTERVAL * randomNumbers.size() + 20, false);
+
 		}
 
 	}
-	
+
 	private class RandomButtonHandler implements ClickHandler {
 
 		@Override
 		public void onClick(ClickEvent event) {
-			
+
 			Button theButton = (Button) event.getSource();
 			int buttonValue = Integer.parseInt(theButton.getText());
 			if ((buttonValue != 0) && (buttonValue <= 30)) {
+
 				// Clean all values in lists
+				resetTimers();
 				numberedButtons.clear();
-				randomNumbers.clear();
+				randomNumbers.clear();                                                   /* 1 */
 				randomNumbersCopy.clear();
 				leftSide.clear();
-				
-				resetTimers();
-				
+				popUp.hide();
+
 				// Generate new values
-				generateRandomNumbers(buttonValue);
+				generateRandomNumbers(buttonValue);                                       /* 2 */
 				randomNumbersCopy.addAll(randomNumbers);
-				for (int i = 0; i < randomNumbersCopy.size(); i++) {
-					Button button = new Button(Integer.toString(randomNumbersCopy.get(i)));
-					button.setStyleName("randomNumberButton");
-					button.addClickHandler(new RandomButtonHandler());
-					numberedButtons.add(button);
-				}
-				
-				render.scheduleRepeating(BUTTONS_DISPLAY_INTERVAL);
-				timersList.add(render);
-				
+				numerateButtons();
+
+				registerAndSchedule(render, BUTTONS_DISPLAY_INTERVAL, true);
+
+			} else {
+				int left = theButton.getAbsoluteLeft() + 10;
+				int top = theButton.getAbsoluteTop() + 10;
+				popUp.setPopupPosition(left, top);
+				popUp.show();
+
+				Timer timer = new Timer() {
+
+					@Override
+					public void run() {
+						popUp.hide();
+					}
+
+				};
+
+				registerAndSchedule(timer, 1000, false);
+
 			}
-//			dialogBox.setVisible(true);
-			
+
 		}
-		
+
 	}
-	
+
 	private void resetTimers() {
 		for (int i = 0; i < timersList.size(); i++) {
 			timersList.get(i).cancel();
@@ -280,14 +277,12 @@ public class Gwt implements EntryPoint {
 	private void quickSort(String order) {
 		if (order.equals("asc")) {
 			ASCQuickSortTimer aqst = new ASCQuickSortTimer(0, randomNumbers.size() - 1);
-			aqst.schedule(300);
-			timersList.add(aqst);
+			registerAndSchedule(aqst, SORTING_ITERATION_DELAY, false);
 		}
 
 		if (order.equals("desc")) {
 			DESCQuickSortTimer dqst = new DESCQuickSortTimer(0, randomNumbers.size() - 1);
-			dqst.schedule(300);
-			timersList.add(dqst);
+			registerAndSchedule(dqst, SORTING_ITERATION_DELAY, false);
 		}
 
 	}
@@ -335,14 +330,12 @@ public class Gwt implements EntryPoint {
 			// Recursion
 			if (low < j) {
 				ASCQuickSortTimer qst1 = new ASCQuickSortTimer(low, j);
-				qst1.schedule(1000);
-				timersList.add(qst1);
+				registerAndSchedule(qst1, SORTING_ITERATION_DELAY, false);
 			}
 
 			if (i < high) {
 				ASCQuickSortTimer qst2 = new ASCQuickSortTimer(i, high);
-				qst2.schedule(1000);
-				timersList.add(qst2);
+				registerAndSchedule(qst2, SORTING_ITERATION_DELAY, false);
 			}
 
 		}
@@ -384,12 +377,12 @@ public class Gwt implements EntryPoint {
 			// Recursion
 			if (low < j) {
 				DESCQuickSortTimer dqst1 = new DESCQuickSortTimer(low, j);
-				dqst1.schedule(1000);
+				registerAndSchedule(dqst1, SORTING_ITERATION_DELAY, false);
 			}
 
 			if (i < high) {
 				DESCQuickSortTimer dqst2 = new DESCQuickSortTimer(i, high);
-				dqst2.schedule(1000);
+				registerAndSchedule(dqst2, SORTING_ITERATION_DELAY, false);
 			}
 
 		}
@@ -407,23 +400,36 @@ public class Gwt implements EntryPoint {
 		numberedButtons.get(i).setText(numberedButtons.get(j).getText());
 		numberedButtons.get(j).setText(temp);
 	}
-	
+
 	private void generateRandomNumbers(int amount) {
+		boolean hasNumber = false;
+		int randomNumber;
 		for (int i = 0; i < amount; i++) {
-			randomNumbers.add(com.google.gwt.user.client.Random.nextInt(1000));
-		}
-		
-		// Check whether there is at list one number <= 30 in the list
-		for (int i = 0; i < amount; i++) {
-			if (randomNumbers.get(i) <= 30) {
-				return;
+			randomNumber = com.google.gwt.user.client.Random.nextInt(1000);
+			randomNumbers.add(randomNumber);
+			
+			// Check whether there is at list one number that is <= 30 in the list
+			if (randomNumber <= 30) {
+				hasNumber = true;
 			}
+		}
+
+		if (!hasNumber) {
 			// In case there isn't such number in list - generate and set it
-			int randomNumber = com.google.gwt.user.client.Random.nextInt(30);
+			randomNumber = com.google.gwt.user.client.Random.nextInt(30);
 			int position = com.google.gwt.user.client.Random.nextInt(amount);
 			randomNumbers.set(position, randomNumber);
 		}
-		
+
+	}
+
+	private void numerateButtons() {
+		for (int i = 0; i < randomNumbersCopy.size(); i++) {
+			Button button = new Button(Integer.toString(randomNumbersCopy.get(i)));
+			button.setStyleName("randomNumberButton");
+			button.addClickHandler(new RandomButtonHandler());
+			numberedButtons.add(button);
+		}
 	}
 
 	// displaying numbered buttons
@@ -455,6 +461,14 @@ public class Gwt implements EntryPoint {
 			}
 		}
 
+	}
+
+	private void registerAndSchedule(Timer timer, int interval, boolean repeating) {
+		timersList.add(timer);
+		if (repeating)
+			timer.scheduleRepeating(interval);
+		else
+			timer.schedule(interval);
 	}
 
 }
