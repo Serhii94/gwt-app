@@ -159,7 +159,7 @@ public class Gwt implements EntryPoint {
         public void onClick(ClickEvent event) {
             sortsScreen.setVisible(false);
             introScreen.setVisible(true);
-            clearAll();
+            cleanAll();
         }
 
     }
@@ -184,7 +184,7 @@ public class Gwt implements EntryPoint {
 
             };
 
-            clear();
+            clean();
             copyRandomNumbersList();
             registerAndSchedule(render, BUTTONS_DISPLAY_INTERVAL, true);
             // star this timer when previous time is complete
@@ -201,7 +201,7 @@ public class Gwt implements EntryPoint {
             Button theButton = (Button) event.getSource();
             int buttonValue = Integer.parseInt(theButton.getText());
             if ((buttonValue != 0) && (buttonValue <= 30)) {
-                clearAll();
+                cleanAll();
                 generateRundomNumbersList(buttonValue);
                 registerAndSchedule(render, BUTTONS_DISPLAY_INTERVAL, true);
             } else {
@@ -410,13 +410,13 @@ public class Gwt implements EntryPoint {
 
     }
 
-    private void clearAll() {
-        clear();
+    private void cleanAll() {
+        clean();
         inputField.setText("");
         randomNumbers.clear();
     }
 
-    private void clear() {
+    private void clean() {
         popUp.hide();
         resetTimers();
         randomNumbersCopy.clear();
