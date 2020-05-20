@@ -40,7 +40,6 @@ public class Gwt implements EntryPoint {
     private DecoratedPopupPanel popUp = new DecoratedPopupPanel();
     private Label restrictMessage = new Label("Please select a value smaller or equal 30.");
 
-    // -- --
     private List<Integer> randomNumbers = new ArrayList<>();
     private List<Integer> randomNumbersCopy = new ArrayList<>();
     private List<Button> numberedButtons = new ArrayList<>();
