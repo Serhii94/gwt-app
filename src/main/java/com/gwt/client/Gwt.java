@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DecoratedPopupPanel;
@@ -40,14 +43,15 @@ public class Gwt implements EntryPoint {
     private DecoratedPopupPanel popUp = new DecoratedPopupPanel();
     private Label restrictMessage = new Label("Please select a value smaller or equal 30.");
 
-    private List<Integer> randomNumbers = new ArrayList<>();
-    private List<Integer> randomNumbersCopy = new ArrayList<>();
-    private List<Button> numberedButtons = new ArrayList<>();
-
-    ButtonsRender render = new ButtonsRender();
-
     private static final int BUTTONS_DISPLAY_INTERVAL = 20;
     private static final int SORTING_ITERATION_DELAY = 300;
+    
+    // Utility objects and containers
+    private List<Integer> randomNumbers = new ArrayList<>();
+    private List<Button> numberedButtons = new ArrayList<>();
+    private List<SwapElement> swapElementsList = new ArrayList<>();
+    private SwapElementsPrinter sep = new SwapElementsPrinter();
+    private ButtonsRender render = new ButtonsRender();
 
     List<Timer> timersList = new ArrayList<>();
 
@@ -116,7 +120,8 @@ public class Gwt implements EntryPoint {
                 errorMessage.setVisible(false);
 
                 int randomNumbersAmount = Integer.valueOf(input);
-                generateRundomNumbersList(randomNumbersAmount);
+                generateRandomNumbers(randomNumbersAmount);
+                numerateButtons();
 
                 Timer timer = new Timer() {
 
@@ -174,21 +179,7 @@ public class Gwt implements EntryPoint {
                 order = "asc";
             }
 
-            Timer timer = new Timer() {
-
-                @Override
-                public void run() {
-                    quickSort(order);
-                }
-
-            };
-
-            clean();
-            copyRandomNumbersList();
-            registerAndSchedule(render, BUTTONS_DISPLAY_INTERVAL, true);
-            // star this timer when previous time is complete
-            int numberOfButtons = numberedButtons.size();
-            registerAndSchedule(timer, BUTTONS_DISPLAY_INTERVAL * numberOfButtons + 20, false);
+            quickSort(order);
         }
 
     }
@@ -201,7 +192,8 @@ public class Gwt implements EntryPoint {
             int buttonValue = Integer.parseInt(theButton.getText());
             if ((buttonValue != 0) && (buttonValue <= 30)) {
                 cleanAll();
-                generateRundomNumbersList(buttonValue);
+                generateRandomNumbers(buttonValue);
+                numerateButtons();
                 registerAndSchedule(render, BUTTONS_DISPLAY_INTERVAL, true);
             } else {
                 int left = theButton.getAbsoluteLeft() + 10;
@@ -226,122 +218,94 @@ public class Gwt implements EntryPoint {
     }
 
     private void quickSort(String order) {
+        swapElementsList.clear();
         if (order.equals("asc")) {
-            AscQuickSorter aqst = new AscQuickSorter(0, randomNumbers.size() - 1);
-            registerAndSchedule(aqst, SORTING_ITERATION_DELAY, false);
+            sortAsc(0, randomNumbers.size() - 1);
         }
         if (order.equals("desc")) {
-            DescQuickSorter dqst = new DescQuickSorter(0, randomNumbers.size() - 1);
-            registerAndSchedule(dqst, SORTING_ITERATION_DELAY, false);
+            sortDesc(0, randomNumbers.size() - 1);
         }
-
+        sep.scheduleRepeating(100);
     }
-
-    private class AscQuickSorter extends Timer {
-        private int low;
-        private int high;
-
-        public AscQuickSorter(int low, int high) {
-            this.low = low;
-            this.high = high;
+    
+    private void sortAsc(int low, int high) {
+        int i = low;
+        int j = high;
+        // Get the pivot element from the middle of the list
+        int pivot = randomNumbers.get(low + (high - low) / 2);
+        // Divide into two lists
+        while (i <= j) {
+            /*
+             * If the current value from the left list is smaller than the pivot element
+             * then get the next element from the left list
+             */
+            while (randomNumbers.get(i) < pivot) {
+                i++;
+            }
+            /*
+             * If the current value from the right list is larger than the pivot element
+             * then get the next element from the right list
+             */
+            while (randomNumbers.get(j) > pivot) {
+                j--;
+            }
+            /*
+             * If we have found a value in the left list which is larger than the pivot
+             * element and if we have found a value in the right list which is smaller than
+             * the pivot element then we swap the values. As we are done we can increase i
+             * and j
+             */
+            if (i <= j) {
+                swap(i, j);
+                swapElementsList.add(new SwapElement(i, j));
+                i++;
+                j--;
+            }
         }
-
-        @Override
-        public void run() {
-            int i = low;
-            int j = high;
-            // Get the pivot element from the middle of the list
-            int pivot = randomNumbersCopy.get(low + (high - low) / 2);
-            // Divide into two lists
-            while (i <= j) {
-                /*
-                 * If the current value from the left list is smaller than the pivot element
-                 * then get the next element from the left list
-                 */
-                while (randomNumbersCopy.get(i) < pivot) {
-                    i++;
-                }
-                /*
-                 * If the current value from the right list is larger than the pivot element
-                 * then get the next element from the right list
-                 */
-                while (randomNumbersCopy.get(j) > pivot) {
-                    j--;
-                }
-                /*
-                 * If we have found a value in the left list which is larger than the pivot
-                 * element and if we have found a value in the right list which is smaller than
-                 * the pivot element then we swap the values. As we are done we can increase i
-                 * and j
-                 */
-                if (i <= j) {
-                    swap(i, j);
-                    swapButtonsText(i, j);
-                    i++;
-                    j--;
-                }
-            }
-            // Recursion
-            if (low < j) {
-                AscQuickSorter aqs = new AscQuickSorter(low, j);
-                registerAndSchedule(aqs, SORTING_ITERATION_DELAY, false);
-            }
-            if (i < high) {
-                AscQuickSorter aqs = new AscQuickSorter(i, high);
-                registerAndSchedule(aqs, SORTING_ITERATION_DELAY, false);
-            }
-
+        // Recursion
+        if (low < j) {
+            sortAsc(low, j);
         }
-
+        if (i < high) {
+            sortAsc(i, high);
+        }
     }
+    
+    private void sortDesc(int low, int high) {
+        int i = low;
+        int j = high;
 
-    private class DescQuickSorter extends Timer {
-        private int low;
-        private int high;
-
-        public DescQuickSorter(int low, int high) {
-            this.low = low;
-            this.high = high;
-        }
-
-        @Override
-        public void run() {
-            int i = low;
-            int j = high;
-            // Get the pivot element from the middle of the list
-            int pivot = randomNumbersCopy.get(low + (high - low) / 2);
-            // Divide into two lists
-            while (i <= j) {
-                while (randomNumbersCopy.get(i) > pivot) {
-                    i++;
-                }
-                while (randomNumbersCopy.get(j) < pivot) {
-                    j--;
-                }
-                if (i <= j) {
-                    swap(i, j);
-                    swapButtonsText(i, j);
-                    i++;
-                    j--;
-                }
+        // Get the pivot element from the middle of the list
+        int pivot = randomNumbers.get(low + (high - low) / 2);
+        // Divide into two lists
+        while (i <= j) {
+            while (randomNumbers.get(i) > pivot) {
+                i++;
             }
-            // Recursion
-            if (low < j) {
-                DescQuickSorter dqs = new DescQuickSorter(low, j);
-                registerAndSchedule(dqs, SORTING_ITERATION_DELAY, false);
+            while (randomNumbers.get(j) < pivot) {
+                j--;
             }
-            if (i < high) {
-                DescQuickSorter dqs = new DescQuickSorter(i, high);
-                registerAndSchedule(dqs, SORTING_ITERATION_DELAY, false);
+            if (i <= j) {
+                swap(i, j);
+                swapElementsList.add(new SwapElement(i, j));           
+                i++;
+                j--;
+                
             }
         }
-
+        // Recursion
+        if (low < j) {
+            sortDesc(low, j);
+        }
+        if (i < high) {
+            sortDesc(i, high);
+        }
     }
 
     private void swap(int i, int j) {
-        int temp = randomNumbersCopy.get(i);
-        randomNumbersCopy.set(i, randomNumbersCopy.get(j));
-        randomNumbersCopy.set(j, temp);
+        int temp = randomNumbers.get(i);
+        randomNumbers.set(i, randomNumbers.get(j));
+        randomNumbers.set(j, temp);
     }
 
     private void swapButtonsText(int i, int j) {
@@ -374,8 +338,8 @@ public class Gwt implements EntryPoint {
     }
 
     private void numerateButtons() {
-        for (int i = 0; i < randomNumbersCopy.size(); i++) {
-            Button button = new Button(Integer.toString(randomNumbersCopy.get(i)));
+        for (int i = 0; i < randomNumbers.size(); i++) {
+            Button button = new Button(Integer.toString(randomNumbers.get(i)));
             button.setStyleName("randomNumberButton");
             button.addClickHandler(new RandomButtonHandler());
             numberedButtons.add(button);
@@ -418,7 +382,7 @@ public class Gwt implements EntryPoint {
     private void clean() {
         popUp.hide();
         resetTimers();
-        randomNumbersCopy.clear();
+        randomNumbers.clear();
         numberedButtons.clear();
         randomButtonsArea.clear();
     }
@@ -430,15 +394,6 @@ public class Gwt implements EntryPoint {
         timersList.clear();
     }
 
-    private void generateRundomNumbersList(int numbersAmount) {
-        generateRandomNumbers(numbersAmount);
-        copyRandomNumbersList();
-    }
-
-    private void copyRandomNumbersList() {
-        randomNumbersCopy.addAll(randomNumbers);
-        numerateButtons();
-    }
 
     private void registerAndSchedule(Timer timer, int interval, boolean repeating) {
         timersList.add(timer);
@@ -446,6 +401,40 @@ public class Gwt implements EntryPoint {
             timer.scheduleRepeating(interval);
         else
             timer.schedule(interval);
+    }
+    
+    private class SwapElement {
+        private int i;
+        private int j;
+        
+        SwapElement(int i, int j) {
+            this.i = i;
+            this.j = j;
+        }
+        
+        int getI() {
+            return this.i;
+        }
+        
+        int getJ() {
+            return this.j;
+        }
+    }
+    
+    private class SwapElementsPrinter extends Timer {
+        int index = 0;
+
+        @Override
+        public void run() {
+            SwapElement se = swapElementsList.get(index);
+            swapButtonsText(se.getI(), se.getJ());
+            index++;
+            if (index == swapElementsList.size()) {
+                index = 0;
+                this.cancel();
+            }
+        }
+        
     }
 
 }
