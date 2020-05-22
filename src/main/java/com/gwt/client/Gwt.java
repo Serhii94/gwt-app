@@ -6,6 +6,8 @@ import java.util.List;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.AttachEvent;
+import com.google.gwt.event.logical.shared.AttachEvent.Handler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DecoratedPopupPanel;
@@ -39,6 +41,7 @@ public class Gwt implements EntryPoint {
     // Pop up message box
     private DecoratedPopupPanel popUp = new DecoratedPopupPanel();
     private Label restrictMessage = new Label("Please select a value smaller or equal 30.");
+    private Timer popUpTimer;
 
     // Sorting components configs
     private String sortOrder = "desc";
@@ -169,6 +172,7 @@ public class Gwt implements EntryPoint {
 
         @Override
         public void onClick(ClickEvent event) {
+            popUp.hide();
             swapElementsList.clear();
             quickSort(sortOrder);
 
@@ -194,12 +198,18 @@ public class Gwt implements EntryPoint {
                 numerateButtons();
                 registerAndSchedule(render, BUTTONS_DISPLAY_INTERVAL, true);
             } else {
+                // hide popUp if it is already shown
+                if (popUpTimer != null && popUpTimer.isRunning()) {
+                    popUpTimer.cancel();
+                    popUp.hide();
+                }
+                // show popUp in new coordinates
                 int left = theButton.getAbsoluteLeft() + 10;
                 int top = theButton.getAbsoluteTop() + 10;
                 popUp.setPopupPosition(left, top);
                 popUp.show();
 
-                Timer timer = new Timer() {
+                popUpTimer = new Timer() {
 
                     @Override
                     public void run() {
@@ -208,7 +218,7 @@ public class Gwt implements EntryPoint {
 
                 };
 
-                registerAndSchedule(timer, 1000, false);
+                registerAndSchedule(popUpTimer, 900, false);
             }
 
         }
