@@ -44,16 +44,17 @@ public class Gwt implements EntryPoint {
     private Label restrictMessage = new Label("Please select a value smaller or equal 30.");
 
     private static final int BUTTONS_DISPLAY_INTERVAL = 20;
-    private static final int SORTING_ITERATION_DELAY = 300;
+    private static final int SORTING_ITERATION_INTERVAL = 50;
     
     // Utility objects and containers
     private List<Integer> randomNumbers = new ArrayList<>();
     private List<Button> numberedButtons = new ArrayList<>();
     private List<SwapElement> swapElementsList = new ArrayList<>();
-    private SwapElementsPrinter sep = new SwapElementsPrinter();
     private ButtonsRender render = new ButtonsRender();
 
     List<Timer> timersList = new ArrayList<>();
+    
+    private String sortOrder = "desc";
 
     public void onModuleLoad() {
         configIntroScreen();
@@ -163,23 +164,25 @@ public class Gwt implements EntryPoint {
         public void onClick(ClickEvent event) {
             sortsScreen.setVisible(false);
             introScreen.setVisible(true);
+            sortOrder = "desc";
             cleanAll();
         }
 
     }
 
     private class SortButtonHandler implements ClickHandler {
-        private String order = "asc";
 
         @Override
         public void onClick(ClickEvent event) {
-            if (order.equals("asc")) {
-                order = "desc";
-            } else if (order.equals("desc")) {
-                order = "asc";
+            swapElementsList.clear();
+            quickSort(sortOrder);
+
+            if (sortOrder.equals("asc")) {
+                sortOrder = "desc";
+            } else if (sortOrder.equals("desc")) {
+                sortOrder = "asc";
             }
 
-            quickSort(order);
         }
 
     }
@@ -188,6 +191,7 @@ public class Gwt implements EntryPoint {
 
         @Override
         public void onClick(ClickEvent event) {
+            sortOrder = "desc";
             Button theButton = (Button) event.getSource();
             int buttonValue = Integer.parseInt(theButton.getText());
             if ((buttonValue != 0) && (buttonValue <= 30)) {
@@ -218,14 +222,14 @@ public class Gwt implements EntryPoint {
     }
 
     private void quickSort(String order) {
-        swapElementsList.clear();
         if (order.equals("asc")) {
             sortAsc(0, randomNumbers.size() - 1);
         }
         if (order.equals("desc")) {
             sortDesc(0, randomNumbers.size() - 1);
         }
-        sep.scheduleRepeating(100);
+        SwapElementsPrinter sep = new SwapElementsPrinter();
+        registerAndSchedule(sep, SORTING_ITERATION_INTERVAL, true);
     }
     
     private void sortAsc(int low, int high) {
@@ -274,7 +278,6 @@ public class Gwt implements EntryPoint {
     private void sortDesc(int low, int high) {
         int i = low;
         int j = high;
-
         // Get the pivot element from the middle of the list
         int pivot = randomNumbers.get(low + (high - low) / 2);
         // Divide into two lists
@@ -290,7 +293,6 @@ public class Gwt implements EntryPoint {
                 swapElementsList.add(new SwapElement(i, j));           
                 i++;
                 j--;
-                
             }
         }
         // Recursion
@@ -374,16 +376,12 @@ public class Gwt implements EntryPoint {
     }
 
     private void cleanAll() {
-        clean();
         inputField.setText("");
-        randomNumbers.clear();
-    }
-
-    private void clean() {
-        popUp.hide();
         resetTimers();
+        popUp.hide();
         randomNumbers.clear();
         numberedButtons.clear();
+        swapElementsList.clear();
         randomButtonsArea.clear();
     }
 
@@ -429,7 +427,7 @@ public class Gwt implements EntryPoint {
             SwapElement se = swapElementsList.get(index);
             swapButtonsText(se.getI(), se.getJ());
             index++;
-            if (index == swapElementsList.size()) {
+            if (index >= swapElementsList.size()) {
                 index = 0;
                 this.cancel();
             }
