@@ -4,11 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DecoratedPopupPanel;
@@ -43,18 +40,17 @@ public class Gwt implements EntryPoint {
     private DecoratedPopupPanel popUp = new DecoratedPopupPanel();
     private Label restrictMessage = new Label("Please select a value smaller or equal 30.");
 
+    // Sorting components configs
+    private String sortOrder = "desc";
     private static final int BUTTONS_DISPLAY_INTERVAL = 20;
-    private static final int SORTING_ITERATION_INTERVAL = 50;
-    
+    private static final int SORTING_ITERATION_INTERVAL = 70;
+
     // Utility objects and containers
     private List<Integer> randomNumbers = new ArrayList<>();
     private List<Button> numberedButtons = new ArrayList<>();
     private List<SwapElement> swapElementsList = new ArrayList<>();
     private ButtonsRender render = new ButtonsRender();
-
-    List<Timer> timersList = new ArrayList<>();
-    
-    private String sortOrder = "desc";
+    private List<Timer> timersList = new ArrayList<>();
 
     public void onModuleLoad() {
         configIntroScreen();
@@ -164,7 +160,6 @@ public class Gwt implements EntryPoint {
         public void onClick(ClickEvent event) {
             sortsScreen.setVisible(false);
             introScreen.setVisible(true);
-            sortOrder = "desc";
             cleanAll();
         }
 
@@ -191,7 +186,6 @@ public class Gwt implements EntryPoint {
 
         @Override
         public void onClick(ClickEvent event) {
-            sortOrder = "desc";
             Button theButton = (Button) event.getSource();
             int buttonValue = Integer.parseInt(theButton.getText());
             if ((buttonValue != 0) && (buttonValue <= 30)) {
@@ -231,7 +225,7 @@ public class Gwt implements EntryPoint {
         SwapElementsPrinter sep = new SwapElementsPrinter();
         registerAndSchedule(sep, SORTING_ITERATION_INTERVAL, true);
     }
-    
+
     private void sortAsc(int low, int high) {
         int i = low;
         int j = high;
@@ -274,7 +268,7 @@ public class Gwt implements EntryPoint {
             sortAsc(i, high);
         }
     }
-    
+
     private void sortDesc(int low, int high) {
         int i = low;
         int j = high;
@@ -290,7 +284,7 @@ public class Gwt implements EntryPoint {
             }
             if (i <= j) {
                 swap(i, j);
-                swapElementsList.add(new SwapElement(i, j));           
+                swapElementsList.add(new SwapElement(i, j));
                 i++;
                 j--;
             }
@@ -376,6 +370,7 @@ public class Gwt implements EntryPoint {
     }
 
     private void cleanAll() {
+        sortOrder = "desc";
         inputField.setText("");
         resetTimers();
         popUp.hide();
@@ -392,7 +387,6 @@ public class Gwt implements EntryPoint {
         timersList.clear();
     }
 
-
     private void registerAndSchedule(Timer timer, int interval, boolean repeating) {
         timersList.add(timer);
         if (repeating)
@@ -400,25 +394,25 @@ public class Gwt implements EntryPoint {
         else
             timer.schedule(interval);
     }
-    
+
     private class SwapElement {
         private int i;
         private int j;
-        
+
         SwapElement(int i, int j) {
             this.i = i;
             this.j = j;
         }
-        
+
         int getI() {
             return this.i;
         }
-        
+
         int getJ() {
             return this.j;
         }
     }
-    
+
     private class SwapElementsPrinter extends Timer {
         int index = 0;
 
@@ -432,7 +426,7 @@ public class Gwt implements EntryPoint {
                 this.cancel();
             }
         }
-        
+
     }
 
 }
