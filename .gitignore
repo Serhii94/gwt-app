@@ -5,3 +5,5 @@
 /war/
 /.classpath
 /.project
+/.idea/
+/Gwt.iml
