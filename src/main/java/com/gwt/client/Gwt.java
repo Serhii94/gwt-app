@@ -199,7 +199,7 @@ public class Gwt implements EntryPoint {
                 registerAndSchedule(render, BUTTONS_DISPLAY_INTERVAL, true);
             } else {
                 // hide popUp if it is already shown
-                if (popUpTimer != null && popUpTimer.isRunning()) {
+                if ((popUpTimer != null) && (popUpTimer.isRunning())) {
                     popUpTimer.cancel();
                     popUp.hide();
                 }
