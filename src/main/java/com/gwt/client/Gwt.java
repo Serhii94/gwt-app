@@ -52,7 +52,6 @@ public class Gwt implements EntryPoint {
     private List<Integer> randomNumbers = new ArrayList<>();
     private List<Button> numberedButtons = new ArrayList<>();
     private List<SwapElement> swapElementsList = new ArrayList<>();
-    private ButtonsRender render = new ButtonsRender();
     private List<Timer> timersList = new ArrayList<>();
 
     public void onModuleLoad() {
@@ -78,6 +77,8 @@ public class Gwt implements EntryPoint {
         inputFieldsWrapper.setStyleName("contentWrapper");
 
         errorMessage.setVisible(false);
+        
+        enterButton.setStyleName("enterButton");
         enterButton.addClickHandler(new EnterButtonHandler());
     }
 
@@ -127,12 +128,12 @@ public class Gwt implements EntryPoint {
 
                     @Override
                     public void run() {
-                        registerAndSchedule(render, BUTTONS_DISPLAY_INTERVAL, true);
+                        displayButtonts();
                     }
 
                 };
 
-                registerAndSchedule(timer, 800, false);
+                registerAndSchedule(timer, 600, false);
             } else {
                 errorMessage.setVisible(true);
             }
@@ -196,7 +197,7 @@ public class Gwt implements EntryPoint {
                 cleanAll();
                 generateRandomNumbers(buttonValue);
                 numerateButtons();
-                registerAndSchedule(render, BUTTONS_DISPLAY_INTERVAL, true);
+                displayButtonts();
             } else {
                 // hide popUp if it is already shown
                 if ((popUpTimer != null) && (popUpTimer.isRunning())) {
@@ -351,14 +352,10 @@ public class Gwt implements EntryPoint {
             numberedButtons.add(button);
         }
     }
-
-    // displaying numbered buttons
-    private class ButtonsRender extends Timer {
-        private int i = 0;
-        private VerticalPanel vPanel = null;
-
-        @Override
-        public void run() {
+    
+    private void displayButtonts() {
+        VerticalPanel vPanel = null;
+        for (int i = 0; i < numberedButtons.size(); i++) {
             // create new column
             if ((i % 10) == 0) {
                 vPanel = new VerticalPanel();
@@ -367,16 +364,7 @@ public class Gwt implements EntryPoint {
             }
             // put button in column
             vPanel.add(numberedButtons.get(i));
-            // pick next button
-            i++;
-            // Reached end of numberedButtons list
-            if (i == numberedButtons.size()) {
-                i = 0;
-                vPanel = null;
-                this.cancel();
-            }
         }
-
     }
 
     private void cleanAll() {

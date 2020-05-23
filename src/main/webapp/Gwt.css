@@ -1,8 +1,17 @@
-/** Add css rules here for your application. */
+
 .introScreen {
-	width: 95%;
+	width: 100%;
 	margin: 0 auto;
+	padding-right: 40px;
+	padding-left: 40px;
 	
+}
+
+.sortsScreen {
+	width: 100%;
+	margin: 0 auto;
+	padding-right: 40px;
+	padding-left: 40px;
 }
 
 .contentWrapper  {
@@ -15,11 +24,6 @@
 	font-size: xx-large;
 }
 
-.sortsScreen {
-	width: 95%;
-	margin: 0 auto;
-}
-
 .randomNumbersButtonPanel {
 	margin-right: 40px;
 }
@@ -28,11 +32,13 @@
 	margin-right: 10px;
 }
 
+.enterButton {
+	width: 80px;
+}
+
 .randomNumberButton {
 	display: block;
-	border: 0;
 	width: 50px;
-	border-radius: 0;
 	margin-bottom: 10px;
 }
 
