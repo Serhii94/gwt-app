@@ -77,6 +77,8 @@ public class Gwt implements EntryPoint {
         inputFieldsWrapper.setStyleName("contentWrapper");
 
         errorMessage.setVisible(false);
+        
+        enterButton.setStyleName("enterButton");
         enterButton.addClickHandler(new EnterButtonHandler());
     }
 
