@@ -46,7 +46,6 @@ public class Gwt implements EntryPoint {
 
     // Sorting components configs
     private String sortOrder = "desc";
-    private static final int BUTTONS_DISPLAY_INTERVAL = 20;
     private static final int SORTING_ITERATION_INTERVAL = 50;
 
     // Utility objects and containers
