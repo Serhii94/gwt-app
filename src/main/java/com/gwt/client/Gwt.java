@@ -9,6 +9,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.logical.shared.AttachEvent.Handler;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DecoratedPopupPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -108,6 +109,7 @@ public class Gwt implements EntryPoint {
         resetButton.addStyleName("resetButton");
 
         popUp.add(restrictMessage);
+        popUp.setWidth("260px");
     }
 
     private class EnterButtonHandler implements ClickHandler {
@@ -205,7 +207,7 @@ public class Gwt implements EntryPoint {
                     popUp.hide();
                 }
                 // show popUp in new coordinates
-                int left = theButton.getAbsoluteLeft() + 10;
+                int left = theButton.getAbsoluteLeft() + Window.getScrollLeft() + 10;
                 int top = theButton.getAbsoluteTop() + 10;
                 popUp.setPopupPosition(left, top);
                 popUp.show();
