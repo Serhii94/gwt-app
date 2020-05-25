@@ -327,8 +327,12 @@ public class Gwt implements EntryPoint {
         int randomNumber;
         for (int i = 0; i < numbersAmount; i++) {
             randomNumber = com.google.gwt.user.client.Random.nextInt(1000);
+            // All numbers must be greater than 0
+            while (randomNumber == 0) {
+                randomNumber = com.google.gwt.user.client.Random.nextInt(1000);
+            }
             randomNumbers.add(randomNumber);
-            // Check whether there is at list one number that is <= 30 in the list
+            // Check whether there is at list one number that is 0 < x <= 30 in the list
             if ((randomNumber <= 30) && (randomNumber != 0)) {
                 hasNumber = true;
             }
